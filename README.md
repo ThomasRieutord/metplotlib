@@ -107,7 +107,7 @@ Contributors are asked to keep their code clean and easy to read.
 In particular, the following conventions are used:
   * For indentation, use spaces, avoid tabs (only tolerated to ensure consistency)
   * Class names use camel case (`ThisIsCamelCase`), function names and variables names use snake case (`this_is_snake_case`), global variables are upper case.
-  * The `wopt` folder must contain exclusively packages and modules. No main code nor data are allowed. Main codes (files that can be run using `python file.py`) are meant to be stored in other directories than `wopt` (for example, in `examples`). Symmetrically, no importable functions or classes should be define outside of the `wopt` directory.
+  * The `metplotlib` folder must contain exclusively packages and modules. No main code nor data are allowed. Main codes (files that can be run using `python file.py`) are meant to be stored in other directories than `metplotlib` (for example, in `examples`). Symmetrically, no importable functions or classes should be define outside of the `metplotlib` directory.
   * Use [Black](https://black.readthedocs.io/en/stable/index.html) and [Isort](https://pycqa.github.io/isort/) before submitting a merge request.
 
 ### License:
