@@ -230,13 +230,23 @@ def colorshades(
     lons, lats = _replace_default_latlon(lons, lats, data)
 
     colormap = metcm.get_colormap_from_varfamily(varfamily)
-
+    
+    if varfamily == "diff":
+        absmax = np.abs(data).max()
+        vmin = -absmax
+        vmax = absmax
+    else:
+        vmin = None
+        vmax = None
+    
     axpc = ax.pcolormesh(
         lons,
         lats,
         data,
         cmap=colormap,
         transform=datcrs,
+        vmin=vmin,
+        vmax=vmax,
     )
     cbar = plt.colorbar(
         axpc,
@@ -623,9 +633,12 @@ def twovar_comparison(
     )
 
     ### axs[1, 0]
-
+    
+    il_diff = il_data0 - il_data1
+    absmax = np.abs(il_diff).max()
+    
     fig, axs[1, 0] = colorshades(
-        il_data0 - il_data1,
+        il_diff,
         lons=lons,
         lats=lats,
         varfamily="diff",
