@@ -1,0 +1,23 @@
+[project]
+name = "metplotlib"
+version = "0.1.1"
+description = "Meteorological plotting utilities"
+authors = [
+    {name = "Thomas Rieutord", email = "thomas.rieutord@gmail.com"},
+]
+dependencies = [
+	"cartopy",
+	"matplotlib",
+	"numpy",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools >= 64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["metplotlib"]
+

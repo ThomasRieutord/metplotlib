@@ -2,6 +2,7 @@
 .idea/**
 local/*
 figures/*
+build/*
 *.nc
 *.grib
 *.egg-info/

@@ -1,4 +1,0 @@
-cartopy
-matplotlib
-numpy
-json
