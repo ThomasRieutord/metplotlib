@@ -27,12 +27,7 @@ Installation
 
 ### Install dependencies and this package with pip
 
-Activate you favorite environment and make sure have all the required dependencies. With `pip` it would be:
-```
-pip install -r requirements.txt
-```
-
-Once you have cloned the `metplotlib` package locally, go to the package root directory (where there is the `setup.py`) and run
+Once you have cloned the `metplotlib` package locally, activate your favorite environment, go to the package root directory (where there is the `setup.py`) and run
 ```
 pip install -e .
 ```
@@ -43,6 +38,7 @@ The environment must be activated each time you want to use the package.
 To check the installation:
 ```
 python tests/import_tests.py
+python tests/plotting_tests.py
 ```
 
 
