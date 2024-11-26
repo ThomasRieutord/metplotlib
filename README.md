@@ -27,7 +27,7 @@ Installation
 
 ### Install dependencies and this package with pip
 
-Once you have cloned the `metplotlib` package locally, activate your favorite environment, go to the package root directory (where there is the `setup.py`) and run
+Once you have cloned the `metplotlib` package locally, activate your favorite environment, go to the package root directory (where there is the `pyproject.toml`) and run
 ```
 pip install -e .
 ```
@@ -87,6 +87,43 @@ fig.show()
 ```
 <img src="assets/compare_wind_mslp_2024-03-04-00_018_mbr001-mbr007.png" width="400" />
 
+
+To plot data into a different projections than that initially provided:
+```
+import numpy as np
+import cartopy.crs as ccrs
+from metplotlib import plots
+
+lambert_proj_params = {
+    "a": 6367470,
+    "b": 6367470,
+    "lat_0": 53.5,
+    "lat_1": 53.5,
+    "lat_2": 53.5,
+    "lon_0": 5.0,
+    "proj": "lcc",
+}
+# Figure CRS: what the figure will look like
+fig_crs = ccrs.LambertConformal(
+    central_longitude=lambert_proj_params["lon_0"],
+    central_latitude=lambert_proj_params["lat_0"],
+    standard_parallels=(lambert_proj_params["lat_1"], lambert_proj_params["lat_2"]),
+)
+# Data CRS: how the data is stored
+data_crs = ccrs.PlateCarree()
+
+nx, ny = (245, 265)
+lon, lat = np.meshgrid(
+    np.linspace(-20, 3, nx),
+    np.linspace(45, 60, ny),
+)
+t2m = 30 * np.cos(np.pi*lat/180) + np.sin(20*np.pi*lon/180)
+mslp = 1015 + 10*(np.sin(20*np.pi*lon/180) + np.cos(25*np.pi*lat/180))
+
+fig, ax = plots.twovar_plot(mslp, t2m, lons=lon, lats=lat, cl_varfamily = "temp", figcrs=fig_crs, datcrs = data_crs)
+fig.show()
+```
+<img src="assets/demo_2proj.png" width="400" />
 
 ### Make animations
 
