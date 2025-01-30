@@ -410,6 +410,112 @@ def quantiles(
 
     return fig, ax
 
+def scatter(
+    data,
+    lons,
+    lats,
+    varfamily="temperature",
+    clabel="",
+    markersize = 3,
+    title=None,
+    figcrs=ccrs.PlateCarree(),
+    datcrs=ccrs.PlateCarree(),
+    **kwargs,
+):
+    """Scatter plot on a map.
+
+
+    Parameters
+    ----------
+    data: ndarray of shape (n,)
+        The values of the variable to plot
+
+    lons: ndarray of shape (n,)
+        Longitudes values for the data points expressed in the data CRS (see `figcrs` and `datcrs`)
+
+    lats: ndarray of shape (n,)
+        Latitudes values for the data points expressed in the data CRS (see `figcrs` and `datcrs`)
+
+    varfamily: str
+        Variable family (ex: "temperature", "radar", "wind_speed")
+
+    clabel: str
+        Label for the colorbar
+    
+    markersize: int
+        Size of the markers in the scatter plot (same for all)
+
+    figcrs:
+        Figure coordinate system. Set what the figure will look like
+
+    datcrs:
+        Data coordinate system. Describes how the data is stored
+    
+    **kwargs:
+        Any additional argument to pass on to `matplotlib.pyplot.scatter`
+
+
+    Returns
+    -------
+    Same as in `isolines`
+    
+    
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from metplotlib import plots
+    >>> lon = -20 + (50 + 20) * np.random.rand(500)
+    >>> lat = 30 + (70 - 30) * np.random.rand(500)
+    >>> data = 20 + 5*(np.cos(np.deg2rad(lat) * 4) + np.sin(np.deg2rad(lon) * 4))
+    >>> fig, ax = plots.scatter(data, lon, lat, varfamily="temperature")
+    >>> fig.show()
+    """
+    fig = plt.figure(figsize=default_figsize)
+    ax = plt.subplot(projection=figcrs)
+    ax.coastlines(resolution="50m", color="black", linewidth=0.5)
+
+    colormap = metcm.get_colormap_from_varfamily(varfamily)
+    
+    if varfamily == "diff":
+        absmax = np.abs(data).max()
+        vmin = -absmax
+        vmax = absmax
+    else:
+        vmin = None
+        vmax = None
+    
+    axpc = ax.scatter(
+        lons,
+        lats,
+        c = data,
+        s = markersize,
+        cmap=colormap,
+        transform=datcrs,
+        vmin=vmin,
+        vmax=vmax,
+        **kwargs,
+    )
+    cbar = plt.colorbar(
+        axpc,
+        extend="both",
+        orientation="vertical",
+        shrink=0.3,
+    )
+
+    for t in cbar.ax.get_yticklabels():
+        t.set_fontsize(10)
+
+    cbar.set_label(clabel, fontsize=10)
+
+    grd = ax.gridlines(draw_labels=True, linestyle="--")
+    grd.top_labels = False
+    grd.right_labels = False
+    
+    if title is not None:
+        ax.set_title(title)
+    
+    return fig, ax
+
 
 # Multple plots
 # -------------
