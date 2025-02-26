@@ -57,7 +57,6 @@ wind_colorlevels = _load_colormap_from_json(
     os.path.join(package_rootdir, "metplotlib", "colormaps", "wind_colorlevels.json")
 )
 
-
 def get_colorlevels_from_varfamily(varfamily):
     """Return the color levels (discrete set of color values) corresponding to the variable family
 
@@ -90,6 +89,7 @@ def get_colorlevels_from_varfamily(varfamily):
 temperature_colormap = "rainbow"
 wind_colormap = "spring"
 diff_colormap = "bwr"
+default_colormap = "viridis"
 
 
 def get_colormap_from_varfamily(varfamily):
@@ -114,9 +114,7 @@ def get_colormap_from_varfamily(varfamily):
     elif varfamily.lower() == "diff":
         colorshade = diff_colormap
     else:
-        raise ValueError(
-            f"Unable to find continuous colormap for varfamily={varfamily}"
-        )
+        colorshade = default_colormap
 
     return colorshade
 
