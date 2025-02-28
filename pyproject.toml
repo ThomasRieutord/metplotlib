@@ -1,6 +1,6 @@
 [project]
 name = "metplotlib"
-version = "0.1.1"
+version = "0.1.2"
 description = "Meteorological plotting utilities"
 authors = [
     {name = "Thomas Rieutord", email = "thomas.rieutord@gmail.com"},
@@ -13,6 +13,9 @@ dependencies = [
 requires-python = ">=3.9"
 readme = "README.md"
 license = {text = "MIT"}
+i
+[project.urls]
+Homepage = "https://github.com/ThomasRieutord/metplotlib"
 
 [build-system]
 requires = ["setuptools >= 64", "wheel"]
