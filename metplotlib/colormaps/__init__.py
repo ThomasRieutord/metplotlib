@@ -13,7 +13,7 @@ import os
 import numpy as np
 from matplotlib import colors
 
-from metplotlib import package_rootdir
+from metplotlib import PACKAGE_ROOTDIR
 
 
 def _load_colormap_from_json(jsonfile):
@@ -47,14 +47,14 @@ def _load_colormap_from_json(jsonfile):
 # ------------
 temperature_colorlevels = _load_colormap_from_json(
     os.path.join(
-        package_rootdir, "metplotlib", "colormaps", "temperature_colorlevels.json"
+        PACKAGE_ROOTDIR, "metplotlib", "colormaps", "temperature_colorlevels.json"
     )
 )
 radar_colorlevels = _load_colormap_from_json(
-    os.path.join(package_rootdir, "metplotlib", "colormaps", "radar_colorlevels.json")
+    os.path.join(PACKAGE_ROOTDIR, "metplotlib", "colormaps", "radar_colorlevels.json")
 )
 wind_colorlevels = _load_colormap_from_json(
-    os.path.join(package_rootdir, "metplotlib", "colormaps", "wind_colorlevels.json")
+    os.path.join(PACKAGE_ROOTDIR, "metplotlib", "colormaps", "wind_colorlevels.json")
 )
 
 def get_colorlevels_from_varfamily(varfamily):
@@ -120,4 +120,4 @@ def get_colormap_from_varfamily(varfamily):
 
 
 # Remove unnecessary attributes
-del json, np, colors, os, package_rootdir
+del json, np, colors, os, PACKAGE_ROOTDIR
