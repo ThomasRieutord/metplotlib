@@ -4,14 +4,11 @@
 
 https://github.com/ThomasRieutord/metplotlib
 """
-import os
+from pathlib import Path
+import importlib.metadata
 
-package_rootdir = os.path.dirname(os.path.realpath(__path__[0]))
+package_rootdir = str(Path(__file__).parent.parent.resolve())
 
-with open(os.path.join(package_rootdir, "pyproject.toml"), "r") as f:
-    for l in f.readlines():
-        if "version =" in l:
-            __version__ = l.split('"')[1]
-            break
+__version__ = importlib.metadata.version("metplotlib")
 
-del f, l, os
+__all__ = ["package_rootdir", "__version__"]
