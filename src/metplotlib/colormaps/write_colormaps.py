@@ -3,6 +3,14 @@
 """Metplotlib
 
 Write colormap from various source of information
+
+
+How to use this file
+--------------------
+$ python write_colormaps.py
+Dict TEMPERATURE_COLORLEVELS_DICT written in new_dicts.py
+Dict RADAR_COLORLEVELS_DICT written in new_dicts.py
+Dict WIND_COLORLEVELS_DICT written in new_dicts.py
 """
 
 import json
@@ -109,6 +117,38 @@ temp_norm = colors.BoundaryNorm(temp_bounds, temp_colormap.N)
 # Write them in JSON files
 # ------------------------
 
+def _to_list(a):
+    return a.tolist() if hasattr(a, "tolist") else list(a)
+
+def write_in_py(pyfile, colormap, norm, name = None, openmode = "a"):
+    """Write the boundaries of the colormap into a JSON file
+
+
+    Parameters
+    ----------
+    jsonfile: str
+        Path to the JSON file to be written
+
+    colormap: `matplotlib.colors.ListedColormap`
+        The colormap to be written
+
+    norm: `matplotlib.colors.BoundaryNorm`
+        The boundaries of the color levels
+    """
+    from pprint import pprint
+    if name is None:
+        name = os.path.basename(pyfile)[:-3]
+    colordict = {
+                "name": name,
+                "N": colormap.N,
+                "bounds": _to_list(norm.boundaries),
+                "colors": _to_list(colormap.colors),
+            }
+    with open(pyfile, openmode) as f:
+        f.write(name.upper() + "=")
+        pprint(colordict, stream = f)
+    
+    print(f"Dict {name} written in {pyfile}")
 
 def write_in_json(jsonfile, colormap, norm):
     """Write the boundaries of the colormap into a JSON file
@@ -128,17 +168,20 @@ def write_in_json(jsonfile, colormap, norm):
     with open(jsonfile, "w") as jsf:
         json.dump(
             {
-                "name": os.path.basename(jsonfile)[:-4],
+                "name": os.path.basename(jsonfile)[:-5],
                 "N": colormap.N,
-                "bounds": norm.boundaries.tolist(),
-                "colors": colormap.colors.tolist(),
+                "bounds": _to_list(norm.boundaries),
+                "colors": _to_list(colormap.colors),
             },
             jsf,
         )
 
     print(f"Colormap with {colormap.N} levels written in {jsonfile}")
 
+# write_in_json("temperature_colorlevels.json", temp_colormap, temp_norm)
+# write_in_json("radar_colorlevels.json", radar_colormap, radar_norm)
+# write_in_json("wind_colorlevels.json", wind_colormap, wind_norm)
 
-write_in_json("temperature_colorlevels.json", temp_colormap, temp_norm)
-write_in_json("radar_colorlevels.json", radar_colormap, radar_norm)
-write_in_json("wind_colorlevels.json", wind_colormap, wind_norm)
+write_in_py("new_dicts.py", temp_colormap, temp_norm, name="TEMPERATURE_COLORLEVELS_DICT")
+write_in_py("new_dicts.py", radar_colormap, radar_norm,name="RADAR_COLORLEVELS_DICT")
+write_in_py("new_dicts.py", wind_colormap, wind_norm, name="WIND_COLORLEVELS_DICT")
