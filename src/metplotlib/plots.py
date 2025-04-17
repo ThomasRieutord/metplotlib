@@ -9,6 +9,7 @@ Notes
 -----
 For more info on figure/data CRS, see [here](https://scitools.org.uk/cartopy/docs/latest/tutorials/understanding_transform.html)
 """
+
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
@@ -39,9 +40,9 @@ def _replace_default_latlon(lons, lats, data):
     if lats is None:
         lats = np.arange(data.shape[0])
 
-    assert (
-        lons.ndim == lats.ndim
-    ), "Longitudes and latitudes do not have the same number of dimensions"
+    assert lons.ndim == lats.ndim, (
+        "Longitudes and latitudes do not have the same number of dimensions"
+    )
     if lons.ndim == 1:
         lons, lats = np.meshgrid(lons, lats)
 
@@ -230,7 +231,7 @@ def colorshades(
     lons, lats = _replace_default_latlon(lons, lats, data)
 
     colormap = metcm.get_colormap_from_varfamily(varfamily)
-    
+
     if varfamily == "diff":
         absmax = np.abs(data).max()
         vmin = -absmax
@@ -238,7 +239,7 @@ def colorshades(
     else:
         vmin = None
         vmax = None
-    
+
     axpc = ax.pcolormesh(
         lons,
         lats,
@@ -383,7 +384,7 @@ def quantiles(
             qvalues[-i - 1, :],
             color=cmap(quantiles[-i - 1]),
             linestyle="--",
-            label=f"Quantile {quantiles[-i-1]}",
+            label=f"Quantile {quantiles[-i - 1]}",
         )
         ax.fill_between(
             x, qvalues[i, :], qvalues[-i - 1, :], color=cmap(quantiles[i]), alpha=0.2
@@ -410,13 +411,14 @@ def quantiles(
 
     return fig, ax
 
+
 def scatter(
     data,
     lons,
     lats,
     varfamily="temperature",
     clabel="",
-    markersize = 3,
+    markersize=3,
     title=None,
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
@@ -441,7 +443,7 @@ def scatter(
 
     clabel: str
         Label for the colorbar
-    
+
     markersize: int
         Size of the markers in the scatter plot (same for all)
 
@@ -450,7 +452,7 @@ def scatter(
 
     datcrs:
         Data coordinate system. Describes how the data is stored
-    
+
     **kwargs:
         Any additional argument to pass on to `matplotlib.pyplot.scatter`
 
@@ -458,8 +460,8 @@ def scatter(
     Returns
     -------
     Same as in `isolines`
-    
-    
+
+
     Examples
     --------
     >>> import numpy as np
@@ -475,7 +477,7 @@ def scatter(
     ax.coastlines(resolution="50m", color="black", linewidth=0.5)
 
     colormap = metcm.get_colormap_from_varfamily(varfamily)
-    
+
     if varfamily == "diff":
         absmax = np.abs(data).max()
         vmin = -absmax
@@ -483,12 +485,12 @@ def scatter(
     else:
         vmin = None
         vmax = None
-    
+
     axpc = ax.scatter(
         lons,
         lats,
-        c = data,
-        s = markersize,
+        c=data,
+        s=markersize,
         cmap=colormap,
         transform=datcrs,
         vmin=vmin,
@@ -510,10 +512,10 @@ def scatter(
     grd = ax.gridlines(draw_labels=True, linestyle="--")
     grd.top_labels = False
     grd.right_labels = False
-    
+
     if title is not None:
         ax.set_title(title)
-    
+
     return fig, ax
 
 
@@ -739,10 +741,10 @@ def twovar_comparison(
     )
 
     ### axs[1, 0]
-    
+
     il_diff = il_data0 - il_data1
     absmax = np.abs(il_diff).max()
-    
+
     fig, axs[1, 0] = colorshades(
         il_diff,
         lons=lons,

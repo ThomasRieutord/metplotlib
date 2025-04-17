@@ -4,6 +4,7 @@
 
 Write colormap from various source of information
 """
+
 import json
 import os
 

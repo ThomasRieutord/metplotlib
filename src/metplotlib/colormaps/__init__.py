@@ -7,22 +7,34 @@ Colormap loading
 Color levels -> ListedColormap (discrete set of values), used in `matplotlib.pyplot.contourf`
 Color maps -> Colormap (continuous set of values), used in `matplotlib.pyplot.pcolormesh`
 """
-import json
-import os
 
-import numpy as np
 from matplotlib import colors
+from .dicts import (
+    TEMPERATURE_COLORLEVELS_DICT,
+    RADAR_COLORLEVELS_DICT,
+    WIND_COLORLEVELS_DICT,
+)
 
-from metplotlib import PACKAGE_ROOTDIR
+__all__ = [
+    "get_colorlevels_from_varfamily",
+    "get_colormap_from_varfamily",
+    "TEMPERATURE_COLORLEVELS",
+    "RADAR_COLORLEVELS",
+    "WIND_COLORLEVELS",
+    "TEMPERATURE_COLORMAP",
+    "WIND_COLORMAP",
+    "DIFF_COLORMAP",
+    "DEFAULT_COLORMAP",
+]
 
 
-def _load_colormap_from_json(jsonfile):
+def _load_colormap_from_dict(colordict):
     """Load the colormap written in a JSON file
 
 
     Parameters
     ----------
-    jsonfile: str
+    colordict: dict
         Path to the JSON file to be written
 
 
@@ -34,28 +46,11 @@ def _load_colormap_from_json(jsonfile):
     norm: `matplotlib.colors.BoundaryNorm`
         The boundaries of the color levels
     """
-    with open(jsonfile, "r") as jsf:
-        temp_colors = json.load(jsf)
-
-    norm = colors.BoundaryNorm(temp_colors["bounds"], temp_colors["N"])
-    colormap = colors.ListedColormap(temp_colors["colors"], name=temp_colors["name"])
+    norm = colors.BoundaryNorm(colordict["bounds"], colordict["N"])
+    colormap = colors.ListedColormap(colordict["colors"], name=colordict["name"])
 
     return colormap, norm
 
-
-# Color levels -> ListedColormap (discrete set of values), used in `matplotlib.pyplot.contourf`
-# ------------
-temperature_colorlevels = _load_colormap_from_json(
-    os.path.join(
-        PACKAGE_ROOTDIR, "metplotlib", "colormaps", "temperature_colorlevels.json"
-    )
-)
-radar_colorlevels = _load_colormap_from_json(
-    os.path.join(PACKAGE_ROOTDIR, "metplotlib", "colormaps", "radar_colorlevels.json")
-)
-wind_colorlevels = _load_colormap_from_json(
-    os.path.join(PACKAGE_ROOTDIR, "metplotlib", "colormaps", "wind_colorlevels.json")
-)
 
 def get_colorlevels_from_varfamily(varfamily):
     """Return the color levels (discrete set of color values) corresponding to the variable family
@@ -73,23 +68,15 @@ def get_colorlevels_from_varfamily(varfamily):
         Discrete values colormap and boundaries for the color to be applied
     """
     if varfamily in ["T", "temp", "temperature"] or varfamily[:15] == "air_temperature":
-        colorlevels = temperature_colorlevels
+        colorlevels = TEMPERATURE_COLORLEVELS
     elif varfamily in ["FF", "wind", "wind_speed"]:
-        colorlevels = wind_colorlevels
+        colorlevels = WIND_COLORLEVELS
     elif varfamily in ["RR", "radar", "precipitation"]:
-        colorlevels = radar_colorlevels
+        colorlevels = RADAR_COLORLEVELS
     else:
         raise ValueError(f"Unable to find color levels for varfamily={varfamily}")
 
     return colorlevels
-
-
-# Color maps -> Colormap (continuous set of values), used in `matplotlib.pyplot.pcolormesh`
-# ----------
-temperature_colormap = "rainbow"
-wind_colormap = "spring"
-diff_colormap = "bwr"
-default_colormap = "viridis"
 
 
 def get_colormap_from_varfamily(varfamily):
@@ -108,16 +95,27 @@ def get_colormap_from_varfamily(varfamily):
         Name of the matplotlib colormap for this family of variable
     """
     if varfamily in ["T", "temp", "temperature"] or varfamily[:15] == "air_temperature":
-        colorshade = temperature_colormap
+        colorshade = TEMPERATURE_COLORMAP
     elif varfamily in ["FF", "wind", "wind_speed"]:
-        colorshade = wind_colormap
+        colorshade = WIND_COLORMAP
     elif varfamily.lower() == "diff":
-        colorshade = diff_colormap
+        colorshade = DIFF_COLORMAP
     else:
-        colorshade = default_colormap
+        colorshade = DEFAULT_COLORMAP
 
     return colorshade
 
 
-# Remove unnecessary attributes
-del json, np, colors, os, PACKAGE_ROOTDIR
+# Color levels -> ListedColormap (discrete set of values), used in `matplotlib.pyplot.contourf`
+# ------------
+TEMPERATURE_COLORLEVELS = _load_colormap_from_dict(TEMPERATURE_COLORLEVELS_DICT)
+RADAR_COLORLEVELS = _load_colormap_from_dict(RADAR_COLORLEVELS_DICT)
+WIND_COLORLEVELS = _load_colormap_from_dict(WIND_COLORLEVELS_DICT)
+
+
+# Color maps -> Colormap (continuous set of values), used in `matplotlib.pyplot.pcolormesh`
+# ----------
+TEMPERATURE_COLORMAP = "rainbow"
+WIND_COLORMAP = "spring"
+DIFF_COLORMAP = "bwr"
+DEFAULT_COLORMAP = "viridis"
