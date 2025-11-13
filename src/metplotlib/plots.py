@@ -18,14 +18,15 @@ from matplotlib import colormaps as mplcm
 
 from metplotlib import colormaps as metcm
 
-default_figsize = (12, 12)
-str4x4 = np.array([["", ""], ["", ""]])
+DEFAULT_FIGSIZE = (12, 12)
+EMPTY_STR4X4 = np.array([["", ""], ["", ""]])
+DEFAULT_RESOLUTION = "50m"
 
 
 def _replace_default_figax(fig, ax, figcrs=None):
     """Replace None by default values for Figure and Axes"""
     if fig is None:
-        fig = plt.figure(figsize=default_figsize)
+        fig = plt.figure(figsize=DEFAULT_FIGSIZE)
 
     if ax is None:
         ax = plt.subplot(projection=figcrs)
@@ -48,6 +49,17 @@ def _replace_default_latlon(lons, lats, data):
 
     return lons, lats
 
+def _pop_kwargs(kwargs, key, default = None):
+    """Extract a variable from kwargs and set a default if it doesn't exist.
+    
+    This is useful to set a default value different from that of the function
+    to which kwargs are passed on and still ensure kwargs take precedence.
+    """
+    if key in kwargs.keys():
+        return kwargs.pop(key)
+    else:
+        return default
+    
 
 # Single plots
 # ------------
@@ -61,6 +73,7 @@ def isolines(
     ax=None,
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
+    **kwargs,
 ):
     """Isoline plot (e.g. for mean sea level pressure)
 
@@ -87,6 +100,9 @@ def isolines(
 
     datcrs:
         Data coordinate system. Describes how the data is stored
+    
+    kwargs:
+        Any other argument. Passed on to `matplotlib.pyplot.contour`
 
 
     Returns
@@ -115,7 +131,7 @@ def isolines(
     fig, ax = _replace_default_figax(fig, ax, figcrs)
     lons, lats = _replace_default_latlon(lons, lats, data)
 
-    axcl = ax.contour(lons, lats, data, colors="black", transform=datcrs)
+    axcl = ax.contour(lons, lats, data, colors="black", transform=datcrs, **kwargs)
     ax.clabel(axcl, inline=True, fontsize=10, fmt="%4.f")
 
     return fig, ax
@@ -131,6 +147,7 @@ def colorlevels(
     clabel="",
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
+    **kwargs,
 ):
     """Color levels plot (e.g. for wind speed).
 
@@ -140,7 +157,8 @@ def colorlevels(
 
     Parameters
     ----------
-    All other parameters are the same as in `isolines`
+    All other parameters are the same as in `isolines`. 
+    Kwargs are passed on to `matplotlib.pyplot.contourf`
 
     varfamily: str
         Variable family (ex: "temperature", "radar", "wind_speed")
@@ -184,6 +202,7 @@ def colorlevels(
         transform=datcrs,
         vmin=values[0],
         vmax=values[-1],
+        **kwargs,
     )
     cbar = plt.colorbar(
         axcf,
@@ -211,6 +230,7 @@ def colorshades(
     clabel="",
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
+    **kwargs,
 ):
     """Color levels plot (e.g. for wind speed).
 
@@ -220,7 +240,7 @@ def colorshades(
 
     Parameters
     ----------
-    Same as in `colorlevels`
+    Same as in `colorlevels`. Kwargs are passed on to `matplotlib.pyplot.pcolormesh`
 
 
     Returns
@@ -248,6 +268,7 @@ def colorshades(
         transform=datcrs,
         vmin=vmin,
         vmax=vmax,
+        **kwargs,
     )
     cbar = plt.colorbar(
         axpc,
@@ -269,12 +290,12 @@ def plumes(
     x=None,
     fig=None,
     ax=None,
-    color="cornflowerblue",
     title=None,
     xlabel=None,
     ylabel=None,
+    **kwargs,
 ):
-    """Plumes showing the dispersion of an ensemble forecast
+    """Plumes showing the dispersion of an ensemble forecast.
 
 
     Parameters
@@ -291,9 +312,6 @@ def plumes(
     ax: `matplotlib.pyplot.Axes`
         The axes object in which the plot is made
 
-    color: str or RGBA tuple
-        Color of the plumes
-
     title: str
         Title of the plot
 
@@ -303,6 +321,8 @@ def plumes(
     ylabel: str
         Label for the y-axis
 
+    kwargs:
+        Any other argument. Passed on to `matplotlib.pyplot.plot`
 
     Returns
     -------
@@ -312,6 +332,10 @@ def plumes(
     ax: `matplotlib.pyplot.Axes`
         The axes object in which the plot is made
     """
+    color = _pop_kwargs(kwargs, "color", "cornflowerblue")
+    linestyle = _pop_kwargs(kwargs, "linestyle", "--")
+    alpha = _pop_kwargs(kwargs, "alpha", 0.2)
+        
     fig, ax = _replace_default_figax(fig, ax)
 
     n_mbr, n_ldt = data.shape
@@ -320,7 +344,7 @@ def plumes(
         x = np.arange(n_ldt)
 
     for i in range(n_mbr):
-        ax.plot(x, data[i, :], linestyle="--", color=color, alpha=0.2)
+        ax.plot(x, data[i, :], linestyle=linestyle, color=color, alpha=alpha, **kwargs)
 
     ax.grid()
     if title is not None:
@@ -454,7 +478,7 @@ def scatter(
         Data coordinate system. Describes how the data is stored
 
     **kwargs:
-        Any additional argument to pass on to `matplotlib.pyplot.scatter`
+        Any additional argument. Passed on to `matplotlib.pyplot.scatter`
 
 
     Returns
@@ -472,9 +496,11 @@ def scatter(
     >>> fig, ax = plots.scatter(data, lon, lat, varfamily="temperature")
     >>> fig.show()
     """
-    fig = plt.figure(figsize=default_figsize)
+    res = _pop_kwargs(kwargs, "resolution", DEFAULT_RESOLUTION)
+    
+    fig = plt.figure(figsize=DEFAULT_FIGSIZE)
     ax = plt.subplot(projection=figcrs)
-    ax.coastlines(resolution="50m", color="black", linewidth=0.5)
+    ax.coastlines(resolution=res, color="black", linewidth=0.5)
 
     colormap = metcm.get_colormap_from_varfamily(varfamily)
 
@@ -533,6 +559,7 @@ def twovar_plot(
     clabel=None,
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
+    **kwargs,
 ):
     """Plot two variable on the same graph
 
@@ -565,7 +592,10 @@ def twovar_plot(
 
     datcrs:
         Data coordinate system. Describes how the data is stored
-
+    
+    kwargs:
+        Any other argument. kwargs['isolines'] are passed on to `isolines`.
+        kwargs['colorlevels'] are passed on to `colorlevels`
 
 
     Returns
@@ -587,11 +617,15 @@ def twovar_plot(
     >>> fig, ax = plots.twovar_plot(z500, t500, lons=lon, lats=lat)
     >>> fig.show()
     """
-    fig = plt.figure(figsize=default_figsize)
+    res = _pop_kwargs(kwargs, "resolution", DEFAULT_RESOLUTION)
+    cl_kwargs = _pop_kwargs(kwargs, "colorlevels", {})
+    il_kwargs = _pop_kwargs(kwargs, "isolines", {})
+    
+    fig = plt.figure(figsize=DEFAULT_FIGSIZE)
     ax = plt.subplot(projection=figcrs)
-    ax.coastlines(resolution="50m", color="black", linewidth=0.5)
+    ax.coastlines(resolution=res, color="black", linewidth=0.5)
 
-    fig, ax = isolines(il_data, lons=lons, lats=lats, fig=fig, ax=ax, datcrs=datcrs)
+    fig, ax = isolines(il_data, lons=lons, lats=lats, fig=fig, ax=ax, datcrs=datcrs, **il_kwargs)
     fig, ax = colorlevels(
         cl_data,
         varfamily=cl_varfamily,
@@ -601,6 +635,7 @@ def twovar_plot(
         fig=fig,
         ax=ax,
         datcrs=datcrs,
+        **cl_kwargs,
     )
 
     grd = ax.gridlines(draw_labels=True, linestyle="--")
@@ -621,10 +656,11 @@ def twovar_comparison(
     lons=None,
     lats=None,
     cl_varfamily="temp",
-    titles=str4x4,
-    clabels=str4x4,
+    titles=EMPTY_STR4X4,
+    clabels=EMPTY_STR4X4,
     figcrs=ccrs.PlateCarree(),
     datcrs=ccrs.PlateCarree(),
+    **kwargs,
 ):
     """Four (2x2) subplots to compare a two-variable plot in two situations.
 
@@ -669,8 +705,11 @@ def twovar_comparison(
 
     datcrs:
         Data coordinate system. Describes how the data is stored
-
-
+    
+    kwargs:
+        Any other argument. kwargs['isolines'] are passed on to `isolines`.
+        kwargs['colorlevels'] are passed on to `colorlevels`
+    
 
     Returns
     -------
@@ -693,16 +732,21 @@ def twovar_comparison(
     >>> fig, ax = plots.twovar_comparison(iso0, iso1, cl0, cl1, lons=lon, lats=lat)
     >>> fig.show()
     """
+    res = _pop_kwargs(kwargs, "resolution", DEFAULT_RESOLUTION)
+    cl_kwargs = _pop_kwargs(kwargs, "colorlevels", {})
+    cs_kwargs = _pop_kwargs(kwargs, "colorshades", {})
+    il_kwargs = _pop_kwargs(kwargs, "isolines", {})
+    
     fig, axs = plt.subplots(
-        nrows=2, ncols=2, figsize=default_figsize, subplot_kw={"projection": figcrs}
+        nrows=2, ncols=2, figsize=DEFAULT_FIGSIZE, subplot_kw={"projection": figcrs}
     )
-    land_50m = cfeature.NaturalEarthFeature(
-        "physical", "land", "50m", edgecolor="face", facecolor=cfeature.COLORS["land"]
+    land = cfeature.NaturalEarthFeature(
+        "physical", "land", res, edgecolor="face", facecolor=cfeature.COLORS["land"]
     )
 
     for ax, title in zip(axs.flatten(), titles.flatten()):
-        ax.add_feature(land_50m, alpha=0.5)
-        ax.coastlines(resolution="50m", color="black", linewidth=0.5)
+        ax.add_feature(land, alpha=0.5)
+        ax.coastlines(resolution=res, color="black", linewidth=0.5)
         ax.set_title(title)
         grd = ax.gridlines(draw_labels=True, linestyle="--")
         grd.top_labels = False
@@ -711,7 +755,7 @@ def twovar_comparison(
     ### axs[0, 0]
 
     fig, axs[0, 0] = isolines(
-        il_data0, lons=lons, lats=lats, fig=fig, ax=axs[0, 0], datcrs=datcrs
+        il_data0, lons=lons, lats=lats, fig=fig, ax=axs[0, 0], datcrs=datcrs, **il_kwargs
     )
     fig, axs[0, 0] = colorlevels(
         cl_data0,
@@ -722,12 +766,13 @@ def twovar_comparison(
         fig=fig,
         ax=axs[0, 0],
         datcrs=datcrs,
+        **cl_kwargs,
     )
 
     ### axs[0, 1]
 
     fig, axs[0, 1] = isolines(
-        il_data1, lons=lons, lats=lats, fig=fig, ax=axs[0, 1], datcrs=datcrs
+        il_data1, lons=lons, lats=lats, fig=fig, ax=axs[0, 1], datcrs=datcrs, **il_kwargs
     )
     fig, axs[0, 1] = colorlevels(
         cl_data1,
@@ -738,6 +783,7 @@ def twovar_comparison(
         fig=fig,
         ax=axs[0, 1],
         datcrs=datcrs,
+        **cl_kwargs,
     )
 
     ### axs[1, 0]
@@ -754,6 +800,7 @@ def twovar_comparison(
         fig=fig,
         ax=axs[1, 0],
         datcrs=datcrs,
+        **cs_kwargs,
     )
 
     ### axs[1, 1]
@@ -767,6 +814,7 @@ def twovar_comparison(
         fig=fig,
         ax=axs[1, 1],
         datcrs=datcrs,
+        **cs_kwargs,
     )
 
     fig.tight_layout()
