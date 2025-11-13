@@ -25,10 +25,26 @@ Metplotlib aims to be based on a **limited set of widely used dependencies**, na
 Installation
 ------------
 
-### Install dependencies and this package with pip
+### From Github
+
+With uv (recommended):
+```bash
+uv add metplotlib@git+https://github.com/ThomasRieutord/metplotlib
+```
+
+With pip:
+```bash
+pip install metplotlib@git+https://github.com/ThomasRieutord/metplotlib
+```
+
+### In editable mode
+
+If you wish to contribute, please see the guidelines in the [Contributing](#contributing) section.
 
 Once you have cloned the `metplotlib` package locally, activate your favorite environment, go to the package root directory (where there is the `pyproject.toml`) and run
-```
+```bash
+git clone git@github.com:ThomasRieutord/metplotlib.git
+cd metplotlib
 pip install -e .
 ```
 
@@ -36,19 +52,19 @@ pip install -e .
 
 The environment must be activated each time you want to use the package.
 To check the installation:
-```
-python tests/import_tests.py
-python tests/plotting_tests.py
+```bash
+python tests/import_test.py
+python -i tests/two_vars_test.py
 ```
 
 
 Usage
-------
+-----
 
 ### Make commonly used plots
 
 For example, to make a plot with the mean sea level pressure isolines over 2-m temperature color levels:
-```
+```python
 from metplotlib import plots
 mslp, t2m, lon, lat = ...replace with your favorite way of loading data...
 fig, ax = plots.twovar_plot(mslp, t2m, lons=lon, lats=lat, cl_varfamily = "temp")
@@ -58,7 +74,7 @@ fig.show()
 
 
 Same example with wind speed instead of 2-m temperature:
-```
+```python
 from metplotlib import plots
 mslp, wind, lon, lat = ...replace with your favorite way of loading data...
 fig, ax = plots.twovar_plot(mslp, wind, lons=lon, lats=lat, cl_varfamily = "wind")
@@ -67,7 +83,7 @@ fig.show()
 <img src="assets/wind_mslp_2024-03-04-00_018_mbr000.png" width="400" />
 
 One more example, for ensemble forecasts at a specific location represented by quantiles time series:
-```
+```python
 from metplotlib import plots
 temp = ...ndarray of shape (n_mbr, n_ldt)...
 leadtimes = ...ndarray of shape (n_ldt,)...
@@ -79,7 +95,7 @@ fig.show()
 ### More advanced plots
 
 To compare two variables in two different states:
-```
+```python
 from metplotlib import plots
 mslp0, mslp1, wind0, wind1, lon, lat = ...replace with your favorite way of loading data...
 fig, ax = plots.twovar_comparison(mslp0, mslp1, wind0, wind1, lons=lon, lats=lat)
@@ -89,7 +105,7 @@ fig.show()
 
 
 To plot data into a different projections than that initially provided:
-```
+```python
 import numpy as np
 import cartopy.crs as ccrs
 from metplotlib import plots
@@ -130,18 +146,48 @@ fig.show()
 ...still to be done...
 
 
-More infos
-----------
 
-### Contributing
+Contributing
+------------
 
 Contributions are welcome! Please open issues and merge requests with your contributions.
 Contributors are asked to keep their code clean and easy to read.
-In particular, the following conventions are used:
-  * For indentation, use spaces, avoid tabs (only tolerated to ensure consistency)
-  * Class names use camel case (`ThisIsCamelCase`), function names and variables names use snake case (`this_is_snake_case`), global variables are upper case.
-  * The `metplotlib` folder must contain exclusively packages and modules. No main code nor data are allowed. Main codes (files that can be run using `python file.py`) are meant to be stored in other directories than `metplotlib` (for example, in `examples`). Symmetrically, no importable functions or classes should be define outside of the `metplotlib` directory.
-  * Use [Black](https://black.readthedocs.io/en/stable/index.html) and [Isort](https://pycqa.github.io/isort/) before submitting a merge request.
+
+### Install in development mode
+
+We recommend the use of [uv](https://docs.astral.sh/uv/) as package manager.
+The installation in dev mode is as follows:
+
+```bash
+git clone git@github.com:ThomasRieutord/metplotlib.git
+cd metplotlib
+uv sync
+```
+
+### Testing
+
+Make sure you include tests in your contribution. At least provide instructions in your PR on how to review your contributions.
+All tests written in the `tests` folder must pass without error.
+To launch them locally, use the following:
+
+```bash
+uv run pytest tests/.
+```
+
+### Linting and formatting
+
+We recommend to use [ruff](https://docs.astral.sh/ruff/) as linter and formatter.
+It is already included in Metplotlib's optional dependencies.
+To lint and format your code, just run the following commands (and fix whatever is needed):
+
+```bash
+uv run ruff format .
+uv run ruff check .
+```
+
+
+More infos
+----------
 
 ### License:
 
