@@ -497,11 +497,14 @@ def scatter(
     >>> fig, ax = plots.scatter(data, lon, lat, varfamily="temperature")
     >>> fig.show()
     """
+    coastline = _pop_kwargs(kwargs, "coastline", True)
     res = _pop_kwargs(kwargs, "resolution", DEFAULT_RESOLUTION)
+    fig = _pop_kwargs(kwargs, "fig", None)
+    ax = _pop_kwargs(kwargs, "ax", None)
+    fig, ax = _replace_default_figax(fig, ax, figcrs)
 
-    fig = plt.figure(figsize=DEFAULT_FIGSIZE)
-    ax = plt.subplot(projection=figcrs)
-    ax.coastlines(resolution=res, color="black", linewidth=0.5)
+    if coastline:
+        ax.coastlines(resolution=res, color="black", linewidth=0.5)
 
     colormap = metcm.get_colormap_from_varfamily(varfamily)
 

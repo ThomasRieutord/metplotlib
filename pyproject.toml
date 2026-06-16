@@ -1,6 +1,6 @@
 [project]
 name = "metplotlib"
-version = "0.1.4"
+version = "0.1.5"
 description = "Meteorological plotting utilities"
 authors = [
     {name = "Thomas Rieutord", email = "thomas.rieutord@gmail.com"},
